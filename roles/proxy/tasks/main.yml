@@ -1,0 +1,92 @@
+---
+
+- name: Setup letsenscript
+  tags: [ letsencrypt ]
+  include: letsencrypt.yml
+
+- name: Setup nginx for CentOS
+  tags: [ nginx_setup ]
+  include: nginx-centos.yml
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure having user www-data
+  user:
+    name: www-data
+    shell: /sbin/nologin
+    home: /var/www
+
+- name: Create common folders
+  tags: [ nginx_setup ]
+  file:
+    path: /etc/nginx/{{item}}
+    state: directory
+    mode: 0755
+    recurse: yes
+  with_items:
+    - conf.d
+    - sites-enabled
+    - ssl
+
+- name: Copy configurations
+  tags: [ nginx_setup ]
+  copy:
+    src: "{{item}}"
+    dest: /etc/nginx/conf.d
+    mode: 0755
+  with_fileglob:
+    - conf.d/*
+
+- name: Copy SSL configurations
+  tags: [ nginx_setup, nginx_ssl ]
+  copy:
+    src: "{{item}}"
+    dest: /etc/nginx/ssl
+    mode: 0755
+  with_fileglob:
+    - ssl/*
+
+- name: Update nginx.conf
+  tags: [ nginx_setup ]
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    mode: 0755
+
+- name: Update fastcgi.conf
+  tags: [ nginx_setup ]
+  copy:
+    src: fastcgi.conf
+    dest: /etc/nginx/fastcgi.conf
+    mode: 0755
+
+- name: Ensure having document root folder
+  tags: [ nginx_setup ]
+  file:
+    path: /var/www
+    mode: 0755
+    owner: www-data
+    group: www-data
+    state: directory
+
+- name: Update permission for nginx log
+  tags: [ nginx_setup, nginx_log_permission ]
+  shell: chmod 0644 /var/log/nginx/*.log
+
+- name: Update permission for nginx logrolate
+  tags: [ nginx_setup, nginx_log_permission ]
+  lineinfile:
+    dest: /etc/logrotate.d/nginx
+    regexp: '.*create.*'
+    line: \tcreate 644 www-data adm
+
+- name: Update permission for nginx cache
+  tags: [nginx_setup, nginx_cache_permission]
+  file:
+    path: /var/cache/nginx
+    owner: www-data
+    recurse: yes
+    state: directory
+
+- name: restart nginx to apply new configuration
+  tags: [ proxy ]
+  service: name=nginx enabled=yes state=restarted

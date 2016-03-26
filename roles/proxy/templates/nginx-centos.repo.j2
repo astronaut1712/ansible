@@ -1,0 +1,5 @@
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/{{ansible_lsb.id|lower}}/{{ansible_lsb.major_release}}/$basearch/
+gpgcheck=0
+enabled=1

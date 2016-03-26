@@ -1,0 +1,16 @@
+---
+
+- name: Add repo
+  template:
+    src: nginx-centos.repo.j2
+    dest: /etc/yum.repos.d/nginx.repo
+    mode: 0644
+
+- name: RPM Import key
+  rpm_key: state=present key=http://nginx.org/keys/nginx_signing.key
+
+- name: Install nginx
+  yum:
+    name: nginx
+    update_cache: yes
+    state: latest

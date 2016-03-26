@@ -1,0 +1,24 @@
+---
+
+- name: install git
+  yum:
+    name: git
+    state: latest
+
+- name: Stop nginx service
+  service:
+    name: nginx
+    state: stopped
+
+- name: Install letsencrypt
+  git:
+    repo: https://github.com/letsencrypt/letsencrypt
+    dest: /opt/letsencrypt
+    clone: yes
+
+- name: Update letsencrypt
+  shell: /opt/letsencrypt/letsencrypt-auto --help
+
+- name: Generate SSL certificate
+  shell: /opt/letsencrypt/letsencrypt-auto certonly --standalone -d {{domain_name}}
+  when: domain_name is defined
