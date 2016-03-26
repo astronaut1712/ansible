@@ -1,0 +1,16 @@
+---
+
+  - name: Adding NGINX signing key
+    tags: [ nginx_setup ]
+    apt_key: url=http://nginx.org/keys/nginx_signing.key state=present
+
+  - name: Adding nginx offical repos
+    tags: [ nginx_setup ]
+    apt_repository:
+      repo: "deb http://nginx.org/packages/{{ ansible_lsb.id|lower }}/ {{ ansible_lsb.codename }} nginx #Nginx"
+      state: present
+      update_cache: yes
+
+  - name: Installing NGINX
+    tags: [ nginx_setup ]
+    apt: name=nginx state=latest

@@ -4,10 +4,15 @@
   tags: [ letsencrypt ]
   include: letsencrypt.yml
 
-- name: Setup nginx for CentOS
+- name: Setup nginx for RedHat family
   tags: [ nginx_setup ]
   include: nginx-centos.yml
   when: ansible_os_family == "RedHat"
+
+- name: Setup nginx for Debian family
+  tags: [ nginx_setup ]
+  include: nginx-ubuntu.yml
+  when: ansible_os_family == "Debian"
 
 - name: Ensure having user www-data
   user:
