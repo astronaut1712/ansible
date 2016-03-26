@@ -1,7 +1,14 @@
 ---
 
-- name: install git
+- name: install git for RedHat family
+  when: ansible_os_family == "RedHat"
   yum:
+    name: git
+    state: latest
+
+- name: install git for Debian family
+  when: ansible_os_family == "Debian"
+  apt:
     name: git
     state: latest
 
@@ -9,6 +16,7 @@
   service:
     name: nginx
     state: stopped
+  ignore_errors: true
 
 - name: Install letsencrypt
   git:
