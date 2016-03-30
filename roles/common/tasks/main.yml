@@ -1,0 +1,12 @@
+---
+- name: Install git
+  tags: [ git ]
+  include: git.yml
+
+- name: Install PHP
+  tags: [ php ]
+  include: php.yml
+
+- name: Install MariaDB
+  tags: [ mariadb ]
+  include: mariadb.yml

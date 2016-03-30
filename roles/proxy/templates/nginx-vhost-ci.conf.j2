@@ -5,7 +5,7 @@ server {
     include ssl/ssl.conf;
     ssl_certificate /etc/letsencrypt/live/{{domain_name}}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/{{domain_name}}/privkey.pem;
-    if($scheme == "http"){
+    if ( $scheme = "http" ){
         return 301 https://$server_name$request_uri;
     }
     {% endif %}
