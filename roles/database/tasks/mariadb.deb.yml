@@ -1,0 +1,14 @@
+---
+
+- name: Set MariaDB root password before installing
+  debconf: name='mariadb-server' question='mariadb-server/root_password' value='{{MariaDB_root_pass | quote}}' vtype='password'
+
+- name: Confirm MariaDB root password before installing
+  debconf: name='mariadb-server' question='mariadb-server/root_password_again' value='{{MariaDB_root_pass | quote}}' vtype='password'
+
+- name: Install MariaDB
+  apt: package={{ item }} state=installed force=yes update_cache=yes cache_valid_time=3600
+  with_items:
+    - mariadb-server
+    - mariadb-client
+    - python-mysqldb

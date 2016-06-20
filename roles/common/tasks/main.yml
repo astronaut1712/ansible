@@ -1,12 +1,5 @@
 ---
-- name: Install git
-  tags: [ git ]
-  include: git.yml
-
-- name: Install PHP
-  tags: [ php ]
-  include: php.yml
-
-- name: Install MariaDB
-  tags: [ mariadb ]
-  include: mariadb.yml
+- name: Install common packages for Debian OS family
+  tags: [ common ]
+  when: ansible_os_family == "Debian"
+  include: common.deb.yml

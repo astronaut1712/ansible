@@ -1,0 +1,15 @@
+---
+- name: Install MongoDB for Debian OS family
+  tags: [ mongodb ]
+  when: ansible_os_family == "Debian"
+  include: mongodb.deb.yml
+
+- name: Install MariaDB for Debian OS family
+  tags: [ mariadb ]
+  when: ansible_os_family == "Debian"
+  include: mariadb.deb.yml
+
+- name: Install PostgreSQL for Debian OS family
+  tags: [ postgresql ]
+  when: ansible_os_family == "Debian"
+  include: postgresql.deb.yml

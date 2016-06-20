@@ -1,0 +1,73 @@
+---
+
+- name: add PostgreSQL offical repos public key
+  apt_key:
+      url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+      state: present
+
+- name: add offical PostgreSQL repos
+  apt_repository:
+      repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main #PostgreSQL"
+      state: present
+      update_cache: yes
+
+- name: install PostgreSQL from offical repos
+  apt: name={{ item }} state=present cache_valid_time=3600 update_cache=yes
+  with_items:
+    - "postgresql-{{ psql_version }}"
+    - "postgresql-contrib-{{ psql_version }}"
+    - "postgresql-server-dev-{{ psql_version }}"
+  environment:
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+      LC_COLLATE: en_US.UTF-8
+      LC_CTYPE: en_US.UTF-8
+      LC_MESSAGES: en_US.UTF-8
+      LC_MONETARY: en_US.UTF-8
+      LC_NUMERIC: en_US.UTF-8
+      LC_TIME: en_US.UTF-8
+
+- name: install PostgreSQL utility and library
+  pip: name={{ item }} state=present
+  with_items:
+    - psycopg2
+    - pgcli
+
+- name: ensure PostgreSQL is running
+  service:
+    name:  postgresql
+    state: started
+
+- name: configure PostgreSQL
+  become_user: postgres
+  register: psql_config
+  template:
+    src:   "postgresql/{{ item.src }}"
+    dest:  "/etc/postgresql/{{ psql_version }}/main/{{ item.dest }}"
+  with_items:
+    - { src: postgresql.conf, dest: postgresql.conf }
+
+- name: copy Vietnamese support unaccent rules
+  tags: [ psql_unaccent ]
+  copy:
+    src: postgresql/unaccent.rules
+    dest: /usr/share/postgresql/{{ psql_version }}/tsearch_data/unaccent.rules
+    owner: root
+    group: root
+    mode: 0644
+
+# kernel shared memory caculation based on this article: http://leopard.in.ua/2013/09/05/postgresql-sessting-shared-memory/
+
+- name: Get PAGE_SIZE
+  shell: getconf PAGE_SIZE
+  register: page_size
+
+- name: Get _PHYS_PAGES
+  shell: getconf _PHYS_PAGES
+  register: phys_pages
+
+- name: restart PostgreSQL
+  when: psql_config|changed
+  service:
+    name:  postgresql
+    state: restarted

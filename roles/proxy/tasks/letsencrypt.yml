@@ -1,6 +1,7 @@
 ---
 
 - name: Stop nginx service
+  tags: [ vhost ]
   service:
     name: nginx
     state: stopped
@@ -16,5 +17,6 @@
   shell: /opt/letsencrypt/letsencrypt-auto --help
 
 - name: Generate SSL certificate
+  tags: [ vhost ]
   shell: /opt/letsencrypt/letsencrypt-auto certonly --standalone -d {{domain_name}}
-  when: domain_name is defined
+  when: domain_name is defined and ssl is defined

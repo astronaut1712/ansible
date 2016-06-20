@@ -1,9 +1,5 @@
 ---
 
-- name: Setup letsencrypt
-  tags: [ letsencrypt ]
-  include: letsencrypt.yml
-
 - name: Setup nginx for RedHat family
   tags: [ nginx_setup ]
   include: nginx-centos.yml
@@ -92,6 +88,17 @@
     recurse: yes
     state: directory
 
+- name: Setup letsencrypt
+  tags: [ letsencrypt ]
+  include: letsencrypt.yml
+
+- name: create virtual host for domain
+  tags: [ vhost ]
+  template:
+    src: "nginx-vhost-{{type}}.conf.j2"
+    dest: /etc/nginx/sites-enabled/{{domain_name}}.conf
+  when: domain_name is defined and type is defined
+
 - name: restart nginx to apply new configuration
-  tags: [ proxy ]
+  tags: [ proxy, vhost ]
   service: name=nginx enabled=yes state=restarted

@@ -1,0 +1,9 @@
+---
+- name: Install PHP for Debian OS family
+  tags: [ php ]
+  when: ansible_os_family == "Debian"
+  include: php.deb.yml
+
+- name: Install NodeJS
+  tags: [ nodejs ]
+  include: nodejs.yml

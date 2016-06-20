@@ -1,0 +1,16 @@
+---
+- name: Install dependency packages for Debian OS family
+  shell: curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+  when: ansible_os_family == 'Debian'
+
+- name: Install nodejs for Debian OS family
+  apt: name=nodejs state=latest
+  when: ansible_os_family == 'Debian'
+
+- name: Install dependency packages for Redhat OS family
+  shell: curl --silent --location https://rpm.nodesource.com/setup_6.x | bash -
+  when: ansible_os_family == "RedHat"
+
+- name: Install nodejs for Redhat OS family
+  yum: name=nodejs state=latest
+  when: ansible_os_family == "RedHat"
